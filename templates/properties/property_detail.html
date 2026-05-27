@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ property.title }} - E-Housing Management{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'properties:list' %}">Properties</a></li>
+            <li class="breadcrumb-item active">{{ property.title }}</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <!-- Property Images -->
+        <div class="col-lg-8">
+            {% if images %}
+                <div id="propertyCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        {% for image in images %}
+                            <button type="button" data-bs-target="#propertyCarousel" data-bs-slide-to="{{ forloop.counter0 }}" 
+                                    {% if forloop.first %}class="active"{% endif %}></button>
+                        {% endfor %}
+                    </div>
+                    <div class="carousel-inner">
+                        {% for image in images %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ image.caption }}" 
+                                     style="height: 400px; object-fit: cover;">
+                                {% if image.caption %}
+                                    <div class="carousel-caption d-none d-md-block">
+                                        <p>{{ image.caption }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#propertyCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#propertyCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
+                </div>
+            {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center mb-4" style="height: 400px;">
+                    <i class="fas fa-home fa-5x text-muted"></i>
+                </div>
+            {% endif %}
+            
+            <!-- Property Details -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h1 class="h3">{{ property.title }}</h1>
+                            <p class="text-muted mb-1">
+                                <i class="fas fa-map-marker-alt me-1"></i>
+                                {{ property.address }}, {{ property.city }}, {{ property.state }} {{ property.pincode }}
+                            </p>
+                        </div>
+                        <div class="text-end">
+                            <h3 class="text-primary mb-0">${{ property.price|floatformat:0 }}</h3>
+                            <span class="badge bg-{% if property.property_type == 'rent' %}info{% else %}success{% endif %}">
+                                {{ property.get_property_type_display }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Property Stats -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-bed fa-2x text-primary mb-2"></i>
+                                <h6>{{ property.bedrooms }} Bedrooms</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-bath fa-2x text-primary mb-2"></i>
+                                <h6>{{ property.bathrooms }} Bathrooms</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-ruler-combined fa-2x text-primary mb-2"></i>
+                                <h6>{{ property.area }} sq ft</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-home fa-2x text-primary mb-2"></i>
+                                <h6>{{ property.get_category_display }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Description -->
+                    <h5>Description</h5>
+                    <p class="mb-4">{{ property.description|linebreaks }}</p>
+                    
+                    <!-- Features -->
+                    <h5>Features & Amenities</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                {% if property.parking %}
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Parking Available</li>
+                                {% endif %}
+                                {% if property.furnished %}
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Furnished</li>
+                                {% endif %}
+                                {% if property.balcony %}
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Balcony</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                {% if property.gym %}
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Gym/Fitness Center</li>
+                                {% endif %}
+                                {% if property.swimming_pool %}
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Swimming Pool</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contact & Actions Sidebar -->
+        <div class="col-lg-4">
+            <!-- Owner Contact -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Contact Owner</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        {% if property.owner.profile.profile_picture %}
+                            <img src="{{ property.owner.profile.profile_picture.url }}" alt="{{ property.owner.username }}" 
+                                 class="rounded-circle me-3" width="60" height="60">
+                        {% else %}
+                            <div class="bg-primary rounded-circle me-3 d-flex align-items-center justify-content-center" 
+                                 style="width: 60px; height: 60px;">
+                                <i class="fas fa-user text-white fa-2x"></i>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h6 class="mb-1">{{ property.owner.username }}</h6>
+                            {% if property.owner.profile.phone %}
+                                <small class="text-muted">{{ property.owner.profile.phone }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if user.is_authenticated and user != property.owner %}
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'communications:send_enquiry' property.pk %}" class="btn btn-primary">
+                                <i class="fas fa-comments me-2"></i>Send Enquiry
+                            </a>
+                            <a href="{% url 'communications:send_complaint' property.pk %}" class="btn btn-outline-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>File Complaint
+                            </a>
+                            <a href="{% url 'communications:send_feedback' property.pk %}" class="btn btn-outline-info">
+                                <i class="fas fa-star me-2"></i>Give Feedback
+                            </a>
+                        </div>
+                    {% elif not user.is_authenticated %}
+                        <div class="alert alert-info">
+                            <p class="mb-2">Please login to contact the owner.</p>
+                            <a href="{% url 'accounts:login' %}" class="btn btn-sm btn-primary">Login</a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-secondary">
+                            <p class="mb-0">This is your property.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Property Info -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Property Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm table-borderless">
+                        <tr>
+                            <td><strong>Type:</strong></td>
+                            <td>{{ property.get_property_type_display }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Category:</strong></td>
+                            <td>{{ property.get_category_display }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Price:</strong></td>
+                            <td class="text-primary"><strong>${{ property.price|floatformat:0 }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Area:</strong></td>
+                            <td>{{ property.area }} sq ft</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bedrooms:</strong></td>
+                            <td>{{ property.bedrooms }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bathrooms:</strong></td>
+                            <td>{{ property.bathrooms }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Listed:</strong></td>
+                            <td>{{ property.created_at|date:"M d, Y" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Related Properties -->
+    {% if related_properties %}
+        <div class="mt-5">
+            <h3 class="mb-4">Similar Properties in {{ property.city }}</h3>
+            <div class="row">
+                {% for related in related_properties %}
+                    <div class="col-md-3 mb-4">
+                        <div class="card property-card h-100">
+                            {% if related.get_main_image %}
+                                <img src="{{ related.get_main_image }}" class="card-img-top" alt="{{ related.title }}" 
+                                     style="height: 150px; object-fit: cover;">
+                            {% else %}
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                    <i class="fas fa-home fa-2x text-muted"></i>
+                                </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <h6 class="card-title">{{ related.title|truncatechars:30 }}</h6>
+                                <p class="text-primary mb-2">${{ related.price|floatformat:0 }}</p>
+                                <small class="text-muted">{{ related.bedrooms }} bed • {{ related.bathrooms }} bath</small>
+                                <div class="mt-2">
+                                    <a href="{% url 'properties:detail' related.pk %}" class="btn btn-sm btn-outline-primary">View</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

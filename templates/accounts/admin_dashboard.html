@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - E-Housing Management{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="{% url 'accounts:admin_dashboard' %}" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <a href="{% url 'accounts:manage_users' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-users me-2"></i>Manage Users
+                    {% if pending_users > 0 %}
+                        <span class="badge bg-danger rounded-pill">{{ pending_users }}</span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'properties:manage_properties' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-home me-2"></i>Manage Properties
+                    {% if pending_properties > 0 %}
+                        <span class="badge bg-warning rounded-pill">{{ pending_properties }}</span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'accounts:profile' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-user me-2"></i>Profile
+                </a>
+                <a href="{% url 'accounts:logout' %}" class="list-group-item list-group-item-action text-danger">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Admin Dashboard</h2>
+                <span class="badge bg-danger">{{ user.get_user_type_display }}</span>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6>Total Users</h6>
+                                    <h3>{{ total_users }}</h3>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-users fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6>Pending Users</h6>
+                                    <h3>{{ pending_users }}</h3>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-user-clock fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6>Total Properties</h6>
+                                    <h3>{{ total_properties }}</h3>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-home fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6>Pending Properties</h6>
+                                    <h3>{{ pending_properties }}</h3>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-house-user fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                            <h5>User Management</h5>
+                            <p class="text-muted">Approve or reject user registrations</p>
+                            <a href="{% url 'accounts:manage_users' %}" class="btn btn-primary">
+                                Manage Users
+                                {% if pending_users > 0 %}
+                                    <span class="badge bg-light text-dark ms-1">{{ pending_users }}</span>
+                                {% endif %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-home fa-3x text-success mb-3"></i>
+                            <h5>Property Management</h5>
+                            <p class="text-muted">Approve or reject property listings</p>
+                            <a href="{% url 'properties:manage_properties' %}" class="btn btn-success">
+                                Manage Properties
+                                {% if pending_properties > 0 %}
+                                    <span class="badge bg-light text-dark ms-1">{{ pending_properties }}</span>
+                                {% endif %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- System Overview -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">System Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Recent Activity</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-circle text-primary me-2" style="font-size: 8px;"></i>
+                                    <strong>{{ total_users }}</strong> registered users
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-circle text-success me-2" style="font-size: 8px;"></i>
+                                    <strong>{{ total_properties }}</strong> property listings
+                                </li>
+                                {% if pending_users > 0 %}
+                                <li class="mb-2">
+                                    <i class="fas fa-circle text-warning me-2" style="font-size: 8px;"></i>
+                                    <strong>{{ pending_users }}</strong> users awaiting approval
+                                </li>
+                                {% endif %}
+                                {% if pending_properties > 0 %}
+                                <li class="mb-2">
+                                    <i class="fas fa-circle text-info me-2" style="font-size: 8px;"></i>
+                                    <strong>{{ pending_properties }}</strong> properties awaiting approval
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Action Required</h6>
+                            {% if pending_users > 0 or pending_properties > 0 %}
+                                <div class="alert alert-warning">
+                                    <strong>Attention:</strong>
+                                    {% if pending_users > 0 %}
+                                        {{ pending_users }} user(s) and
+                                    {% endif %}
+                                    {% if pending_properties > 0 %}
+                                        {{ pending_properties }} property/properties
+                                    {% endif %}
+                                    require your approval.
+                                </div>
+                            {% else %}
+                                <div class="alert alert-success">
+                                    <strong>All caught up!</strong> No pending approvals at this time.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

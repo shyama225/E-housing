@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}My Complaints - E-Housing Management{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>My Complaints</h2>
+        <a href="{% url 'properties:list' %}" class="btn btn-primary">
+            <i class="fas fa-search me-2"></i>Browse Properties
+        </a>
+    </div>
+    
+    {% if complaints %}
+        <div class="row">
+            {% for complaint in complaints %}
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h6 class="card-title mb-0">{{ complaint.subject }}</h6>
+                                <span class="badge bg-{% if complaint.status == 'resolved' %}success{% elif complaint.status == 'in_progress' %}info{% elif complaint.status == 'closed' %}secondary{% else %}warning{% endif %}">
+                                    {{ complaint.get_status_display }}
+                                </span>
+                            </div>
+                            
+                            <p class="text-muted small mb-2">
+                                <i class="fas fa-home me-1"></i>
+                                {{ complaint.property.title }} - {{ complaint.property.city }}
+                            </p>
+                            
+                            <p class="card-text">{{ complaint.description|truncatewords:20 }}</p>
+                            
+                            {% if complaint.owner_response %}
+                                <div class="alert alert-light border-start border-primary border-3 py-2 px-3 mt-2">
+                                    <strong>Owner Response:</strong><br>
+                                    {{ complaint.owner_response|truncatewords:15 }}
+                                </div>
+                            {% endif %}
+                            
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    Filed: {{ complaint.created_at|date:"M d, Y" }}
+                                </small>
+                                {% if complaint.updated_at != complaint.created_at %}
+                                    <small class="text-muted">
+                                        Updated: {{ complaint.updated_at|date:"M d, Y" }}
+                                    </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if complaints.has_other_pages %}
+            <nav aria-label="Complaints pagination">
+                <ul class="pagination justify-content-center">
+                    {% if complaints.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ complaints.previous_page_number }}">Previous</a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for num in complaints.paginator.page_range %}
+                        {% if complaints.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if complaints.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ complaints.next_page_number }}">Next</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-exclamation-triangle fa-4x text-muted mb-3"></i>
+            <h4>No Complaints Filed</h4>
+            <p class="text-muted">You haven't filed any complaints yet.</p>
+            <a href="{% url 'properties:list' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-search me-2"></i>Browse Properties
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

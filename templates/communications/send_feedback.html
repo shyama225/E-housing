@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Send Feedback - {{ property.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Property Summary -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            {% if property.get_main_image %}
+                                <img src="{{ property.get_main_image }}" class="img-fluid rounded" alt="{{ property.title }}">
+                            {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height: 150px;">
+                                    <i class="fas fa-home fa-3x text-muted"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <h5>{{ property.title }}</h5>
+                            <p class="text-muted mb-2">{{ property.city }}, {{ property.state }}</p>
+                            <p class="text-primary fw-bold">Owner: {{ property.owner.username }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Feedback Form -->
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="fas fa-star me-2"></i>Share Your Feedback</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.rating.id_for_label }}" class="form-label">Rating *</label>
+                            {{ form.rating }}
+                            {% if form.rating.errors %}
+                                <div class="text-danger small">{{ form.rating.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">Rate your experience with this property</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.comment.id_for_label }}" class="form-label">Your Comments</label>
+                            {{ form.comment }}
+                            {% if form.comment.errors %}
+                                <div class="text-danger small">{{ form.comment.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">Share your experience, suggestions, or any other feedback (optional)</div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Note:</strong> Your feedback helps other users make informed decisions and helps property owners improve their services.
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'properties:detail' property.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Property
+                            </a>
+                            <button type="submit" class="btn btn-info">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Feedback
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

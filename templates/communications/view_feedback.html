@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}View Feedback - Owner Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Property Feedback</h2>
+        <a href="{% url 'accounts:owner_dashboard' %}" class="btn btn-primary">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+        </a>
+    </div>
+    
+    {% if feedback %}
+        <div class="row">
+            {% for fb in feedback %}
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h6 class="card-title mb-0">{{ fb.property.title }}</h6>
+                                <div class="rating text-warning">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= fb.rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="ms-1 text-muted">({{ fb.rating }}/5)</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <strong>From:</strong> {{ fb.user.username }}
+                            </div>
+                            
+                            {% if fb.comment %}
+                                <p class="card-text">{{ fb.comment }}</p>
+                            {% else %}
+                                <p class="text-muted fst-italic">No additional comments provided.</p>
+                            {% endif %}
+                            
+                            <div class="text-end">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ fb.created_at|date:"M d, Y - g:i A" }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if feedback.has_other_pages %}
+            <nav aria-label="Feedback pagination">
+                <ul class="pagination justify-content-center">
+                    {% if feedback.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ feedback.previous_page_number }}">Previous</a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for num in feedback.paginator.page_range %}
+                        {% if feedback.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if feedback.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ feedback.next_page_number }}">Next</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-star fa-4x text-muted mb-3"></i>
+            <h4>No Feedback Yet</h4>
+            <p class="text-muted">You haven't received any feedback for your properties yet.</p>
+            <a href="{% url 'properties:my_properties' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-home me-2"></i>View My Properties
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

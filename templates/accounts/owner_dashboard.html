@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+
+{% block title %}Owner Dashboard - E-Housing Management{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="{% url 'accounts:owner_dashboard' %}" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <a href="{% url 'properties:add' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-plus me-2"></i>Add Property
+                </a>
+                <a href="{% url 'properties:my_properties' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-home me-2"></i>My Properties
+                </a>
+                <a href="{% url 'communications:view_enquiries' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-comments me-2"></i>View Enquiries
+                    {% if new_enquiries > 0 %}
+                        <span class="badge bg-danger rounded-pill">{{ new_enquiries }}</span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'communications:view_complaints' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Complaints
+                    {% if new_complaints > 0 %}
+                        <span class="badge bg-warning rounded-pill">{{ new_complaints }}</span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'communications:view_feedback' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-star me-2"></i>Feedback
+                </a>
+                <a href="{% url 'accounts:profile' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-user me-2"></i>Profile
+                </a>
+                <a href="{% url 'accounts:logout' %}" class="list-group-item list-group-item-action text-danger">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Owner Dashboard</h2>
+                <span class="badge bg-info">{{ user.get_user_type_display }}</span>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6>My Properties</h6>
+                                    <h3>{{ my_properties.count }}</h3>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-home fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6>New Enquiries</h6>
+                                    <h3>{{ new_enquiries }}</h3>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-comments fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6>Pending Complaints</h6>
+                                    <h3>{{ new_complaints }}</h3>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-exclamation-triangle fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6>Total Feedback</h6>
+                                    <h3>{{ total_feedback }}</h3>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-star fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-plus fa-3x text-primary mb-3"></i>
+                            <h5>Add New Property</h5>
+                            <p class="text-muted">List a new property for rent or sale</p>
+                            <a href="{% url 'properties:add' %}" class="btn btn-primary">Add Property</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-chart-line fa-3x text-success mb-3"></i>
+                            <h5>Manage Properties</h5>
+                            <p class="text-muted">View and edit your existing properties</p>
+                            <a href="{% url 'properties:my_properties' %}" class="btn btn-success">Manage Properties</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Properties -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Properties</h5>
+                </div>
+                <div class="card-body">
+                    {% if my_properties %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Property</th>
+                                        <th>Type</th>
+                                        <th>Price</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for property in my_properties|slice:":5" %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ property.title }}</strong><br>
+                                            <small class="text-muted">{{ property.city }}</small>
+                                        </td>
+                                        <td>{{ property.get_property_type_display }}</td>
+                                        <td>${{ property.price|floatformat:0 }}</td>
+                                        <td>
+                                            {% if property.is_approved %}
+                                                {% if property.is_available %}
+                                                    <span class="badge bg-success">Available</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">Unavailable</span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="badge bg-secondary">Pending Approval</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ property.created_at|date:"M d, Y" }}</td>
+                                        <td>
+                                            <a href="{% url 'properties:edit' property.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center">
+                            <a href="{% url 'properties:my_properties' %}" class="btn btn-outline-primary">View All Properties</a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-home fa-3x text-muted mb-3"></i>
+                            <h5>No Properties Listed</h5>
+                            <p class="text-muted">Start by adding your first property.</p>
+                            <a href="{% url 'properties:add' %}" class="btn btn-primary">Add Your First Property</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

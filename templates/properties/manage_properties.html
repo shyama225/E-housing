@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Properties - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="{% url 'accounts:admin_dashboard' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <a href="{% url 'accounts:manage_users' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-users me-2"></i>Manage Users
+                </a>
+                <a href="{% url 'properties:manage_properties' %}" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-home me-2"></i>Manage Properties
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Manage Properties</h2>
+                <span class="badge bg-info">Total: {{ properties.paginator.count }} properties</span>
+            </div>
+            
+            <!-- Properties Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Property Listings</h5>
+                </div>
+                <div class="card-body">
+                    {% if properties %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Property</th>
+                                        <th>Owner</th>
+                                        <th>Type</th>
+                                        <th>Price</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for property in properties %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if property.get_main_image %}
+                                                    <img src="{{ property.get_main_image }}" alt="{{ property.title }}" 
+                                                         class="rounded me-2" width="50" height="50" style="object-fit: cover;">
+                                                {% else %}
+                                                    <div class="bg-light rounded me-2 d-flex align-items-center justify-content-center" 
+                                                         style="width: 50px; height: 50px;">
+                                                        <i class="fas fa-home text-muted"></i>
+                                                    </div>
+                                                {% endif %}
+                                                <div>
+                                                    <strong>{{ property.title|truncatechars:30 }}</strong><br>
+                                                    <small class="text-muted">{{ property.city }}, {{ property.state }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ property.owner.username }}</td>
+                                        <td>
+                                            <span class="badge bg-{% if property.property_type == 'rent' %}info{% else %}success{% endif %}">
+                                                {{ property.get_property_type_display }}
+                                            </span>
+                                        </td>
+                                        <td>${{ property.price|floatformat:0 }}</td>
+                                        <td>
+                                            {% if property.is_approved %}
+                                                <span class="badge bg-success">Approved</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ property.created_at|date:"M d, Y" }}</td>
+                                        <td>
+                                            <a href="{% url 'properties:detail' property.pk %}" 
+                                               class="btn btn-sm btn-outline-primary me-1" target="_blank">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            {% if not property.is_approved %}
+                                                <a href="{% url 'properties:approve' property.pk %}" 
+                                                   class="btn btn-sm btn-success me-1"
+                                                   onclick="return confirm('Are you sure you want to approve this property?')">
+                                                    <i class="fas fa-check"></i>
+                                                </a>
+                                            {% endif %}
+                                            {% if property.is_approved %}
+                                                <a href="{% url 'properties:reject' property.pk %}" 
+                                                   class="btn btn-sm btn-warning"
+                                                   onclick="return confirm('Are you sure you want to reject this property?')">
+                                                    <i class="fas fa-times"></i>
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        {% if properties.has_other_pages %}
+                            <nav aria-label="Properties pagination">
+                                <ul class="pagination justify-content-center">
+                                    {% if properties.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ properties.previous_page_number }}">Previous</a>
+                                        </li>
+                                    {% endif %}
+                                    
+                                    {% for num in properties.paginator.page_range %}
+                                        {% if properties.number == num %}
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ num }}</span>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if properties.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ properties.next_page_number }}">Next</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-home fa-3x text-muted mb-3"></i>
+                            <h5>No Properties Found</h5>
+                            <p class="text-muted">No properties have been listed yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}View Enquiries - Owner Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Property Enquiries</h2>
+        <a href="{% url 'accounts:owner_dashboard' %}" class="btn btn-primary">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+        </a>
+    </div>
+    
+    {% if enquiries %}
+        <div class="row">
+            {% for enquiry in enquiries %}
+                <div class="col-lg-6 mb-4">
+                    <div class="card {% if not enquiry.is_read %}border-primary{% endif %}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h6 class="card-title mb-0">{{ enquiry.property.title }}</h6>
+                                {% if not enquiry.is_read %}
+                                    <span class="badge bg-warning">New</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-2">
+                                <strong>From:</strong> {{ enquiry.user.username }}
+                                {% if enquiry.phone %}
+                                    <br><small class="text-muted"><i class="fas fa-phone me-1"></i>{{ enquiry.phone }}</small>
+                                {% endif %}
+                            </div>
+                            
+                            <p class="card-text">{{ enquiry.message|truncatewords:20 }}</p>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ enquiry.created_at|date:"M d, Y - g:i A" }}
+                                </small>
+                                <div>
+                                    <a href="{% url 'communications:enquiry_detail' enquiry.id %}" class="btn btn-sm btn-primary">
+                                        {% if not enquiry.is_read %}View & Respond{% else %}View Conversation{% endif %}
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            {% if enquiry.responses.exists %}
+                                <div class="mt-2">
+                                    <small class="text-success">
+                                        <i class="fas fa-reply me-1"></i>
+                                        {{ enquiry.responses.count }} response(s)
+                                    </small>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if enquiries.has_other_pages %}
+            <nav aria-label="Enquiries pagination">
+                <ul class="pagination justify-content-center">
+                    {% if enquiries.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ enquiries.previous_page_number }}">Previous</a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for num in enquiries.paginator.page_range %}
+                        {% if enquiries.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if enquiries.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ enquiries.next_page_number }}">Next</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-comments fa-4x text-muted mb-3"></i>
+            <h4>No Enquiries Yet</h4>
+            <p class="text-muted">You haven't received any enquiries for your properties yet.</p>
+            <a href="{% url 'properties:my_properties' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-home me-2"></i>View My Properties
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Enquiry Details - E-Housing Management{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Property Info -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            {% if enquiry.property.get_main_image %}
+                                <img src="{{ enquiry.property.get_main_image }}" class="img-fluid rounded" alt="{{ enquiry.property.title }}">
+                            {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height: 100px;">
+                                    <i class="fas fa-home fa-2x text-muted"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-9">
+                            <h5>{{ enquiry.property.title }}</h5>
+                            <p class="text-muted mb-1">{{ enquiry.property.city }}, {{ enquiry.property.state }}</p>
+                            <p class="text-primary fw-bold mb-0">${{ enquiry.property.price|floatformat:0 }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Enquiry Thread -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Enquiry Conversation</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Original Enquiry -->
+                    <div class="border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <strong>{{ enquiry.user.username }} (You)</strong>
+                            <small class="text-muted">{{ enquiry.created_at|date:"M d, Y - g:i A" }}</small>
+                        </div>
+                        <p class="mb-2">{{ enquiry.message|linebreaks }}</p>
+                        {% if enquiry.phone %}
+                            <small class="text-muted">
+                                <i class="fas fa-phone me-1"></i>Contact: {{ enquiry.phone }}
+                            </small>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Responses -->
+                    {% for response in responses %}
+                        <div class="border rounded p-3 mb-3 {% if response.sender == enquiry.property.owner %}ms-4{% else %}me-4{% endif %}" 
+                             style="background-color: {% if response.sender == enquiry.property.owner %}#e3f2fd{% else %}#f3e5f5{% endif %};">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <strong>
+                                    {{ response.sender.username }}
+                                    {% if response.sender == enquiry.property.owner %}
+                                        <span class="badge bg-info ms-1">Owner</span>
+                                    {% endif %}
+                                </strong>
+                                <small class="text-muted">{{ response.created_at|date:"M d, Y - g:i A" }}</small>
+                            </div>
+                            <p class="mb-0">{{ response.message|linebreaks }}</p>
+                        </div>
+                    {% endfor %}
+                    
+                    <!-- Response Form -->
+                    <div class="border-top pt-3">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="{{ form.message.id_for_label }}" class="form-label">Your Response</label>
+                                {{ form.message }}
+                                {% if form.message.errors %}
+                                    <div class="text-danger small">{{ form.message.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'communications:my_enquiries' %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Enquiries
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-reply me-2"></i>Send Response
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

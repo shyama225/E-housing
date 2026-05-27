@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Update Complaint Response{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Complaint Details -->
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Complaint Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Subject:</strong> {{ complaint.subject }}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Property:</strong> {{ complaint.property.title }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>From:</strong> {{ complaint.user.username }}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Date Filed:</strong> {{ complaint.created_at|date:"M d, Y" }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Description:</strong><br>
+                        {{ complaint.description|linebreaks }}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Response Form -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-reply me-2"></i>Your Response</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.status.id_for_label }}" class="form-label">Status *</label>
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                                <div class="text-danger small">{{ form.status.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.owner_response.id_for_label }}" class="form-label">Your Response *</label>
+                            {{ form.owner_response }}
+                            {% if form.owner_response.errors %}
+                                <div class="text-danger small">{{ form.owner_response.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">Provide a detailed response addressing the complaint</div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Note:</strong> The user will be notified of your response and status update.
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'communications:view_complaints' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Complaints
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Update Response
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
